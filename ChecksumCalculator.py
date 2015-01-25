@@ -1,10 +1,10 @@
 #!/usr/bin/python
-# #
-# #  Copyright (c) 2015 YUV Checksum calculator authors. All Rights Reserved.
-# #
-# #  Use of this source code is governed by a GPL v2 license
-# #  that can be found in the LICENSE file in the root of the source tree.
-# #
+##
+##  Copyright (c) 2015 YUV Checksum calculator authors. All Rights Reserved.
+##
+##  Use of this source code is governed by a GPL v2 license
+##  that can be found in the LICENSE file in the root of the source tree.
+##
 
 import os
 import sys
@@ -115,7 +115,7 @@ def argParse():
                         help='Calculate MD5 checksum (default is true).')
     # group.add_argument('--crc', dest='use_crc32', action='store_true',
     #                    help='Calculate CRC32 instead of MD5.')
-    group.add_argument('--sha', dest='use_sha1', action='store_true',
+    group.add_argument('--sha1', dest='use_sha1', action='store_true',
                         help='Calculate SHA1 instead of MD5.')
 
     # parser.print_help()
