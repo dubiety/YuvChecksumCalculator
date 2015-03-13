@@ -79,6 +79,7 @@ class checksumCalculator(object):
 
         print("Done! {frames} calculated at file {file_name}".format(frames=self.frames_to_calculate, \
                                                                      file_name=self.output_file.name))
+        return 0
 
 
 def GetVersion():
@@ -127,8 +128,9 @@ def argParse():
 def main():
     args = argParse()
     checksum_calculator = checksumCalculator(vars(args))
-    checksum_calculator.calculate()
+    EXIT_STATUS = checksum_calculator.calculate()
+    return EXIT_STATUS
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
 
