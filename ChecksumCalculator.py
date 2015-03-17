@@ -1,24 +1,26 @@
 #!/usr/bin/python
-##
-##  Copyright (c) 2015 YUV Checksum calculator authors. All Rights Reserved.
-##
-##  Use of this source code is governed by a GPL v2 license
-##  that can be found in the LICENSE file in the root of the source tree.
-##
+#
+#  Copyright (c) 2015 YUV Checksum calculator authors. All Rights Reserved.
+#
+#  Use of this source code is governed by a GPL v2 license
+#  that can be found in the LICENSE file in the root of the source tree.
+#
 
 import os
 import sys
 import argparse
 import hashlib
 
-class checksumCalculator(object):
-    '''Class checksumCalculator
+
+class ChecksumCalculator(object):
+    """Class ChecksumCalculator
     Calculate checksum of a YUV file.
     Support format: IYUV or monochrome Y data
 
     Init: Enter a dictionary with required key value (See argument)
     Calculation: call member function calculate()
-    '''
+    """
+
     def __init__(self, args):
         self.input_file = args["input_file"]
         self.output_file = args["output_file"]
@@ -37,7 +39,7 @@ class checksumCalculator(object):
             self.checksum_func = hashlib.md5
         else:
             self.checksum_func = hashlib.sha1
-        if self.frames_to_calculate == 0 or self.frames_to_calculate == None:
+        if not self.frames_to_calculate:
             self.input_file.seek(0, os.SEEK_END)
             file_size = self.input_file.tell()
             self.frames_to_calculate = file_size // (self.luma_size + self.chroma_size * 2) - self.start
@@ -64,31 +66,32 @@ class checksumCalculator(object):
                 while channel < 2:
                     chunk = self.input_file.read(self.chroma_size)
                     if not self.combine_calculate:
-                        checksum = checksum_func()
+                        checksum = self.checksum_func()
                     checksum.update(chunk)
                     if not self.combine_calculate:
                         self.output_file.write(checksum.hexdigest() + '\n')
                         # print(("U " if channel == 0 else "V ") + checksum.hexdigest())
-                    channel = channel + 1
+                    channel += 1
                 if self.combine_calculate:
                     self.output_file.write(checksum.hexdigest() + '\n')
                     # print("Frame" + str(self.frames_to_calculate - frame_left) + " " + checksum.hexdigest())
 
             chunk = self.input_file.read(self.luma_size)
-            frame_left = frame_left - 1
+            frame_left -= 1
 
-        print("Done! {frames} calculated at file {file_name}".format(frames=self.frames_to_calculate, \
+        print("Done! {frames} calculated at file {file_name}".format(frames=self.frames_to_calculate,
                                                                      file_name=self.output_file.name))
         return 0
 
 
-def GetVersion():
-  """Return this module version"""
-  return '%(prog)s ' + 'v0.1 alpha'
+def get_version():
+    """Return this module version"""
+    return '%(prog)s ' + 'v0.1 alpha'
 
-def argParse():
+
+def arg_parse():
     parser = argparse.ArgumentParser(description='Calculate IYUV MD5/CRC/SHA', prog='YUV Checksum Calculator')
-    parser.add_argument('-v', '--version', action='version', version=GetVersion())
+    parser.add_argument('-v', '--version', action='version', version=get_version())
     parser.add_argument('-i', '--input', type=argparse.FileType('rb'), dest='input_file', required=True,
                         metavar='<file name>',
                         help='YUV input file name.')
@@ -109,28 +112,28 @@ def argParse():
     parser.add_argument('-c', '--combine', dest='combine_calculate', action='store_true',
                         help='Only calculate one MD5 for YUV 3 channel combined.')
     # parser.add_argument('-p', '--rpadding', type=int, default=0, nargs=1, dest='rpadding',
-    #                    metavar='<padding>',
-    #                    help='YUV right padding (in pixels). e.g. Calculate every 1440 pixel data and skip 16 pixel data, enter \"-p 16\"')
+    # metavar='<padding>',
+    #                    help='YUV right padding (in pixels). e.g. To skip 16 pixel data, enter \"-p 16\"')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--md5', dest='use_md5', action='store_true',
-                        help='Calculate MD5 checksum (default is true).')
-    # group.add_argument('--crc', dest='use_crc32', action='store_true',
-    #                    help='Calculate CRC32 instead of MD5.')
+                       help='Calculate MD5 checksum (default is true).')
     group.add_argument('--sha1', dest='use_sha1', action='store_true',
-                        help='Calculate SHA1 instead of MD5.')
+                       help='Calculate SHA1 instead of MD5.')
 
     # parser.print_help()
     args = parser.parse_args(sys.argv[1:])
-    if not args.use_sha1: args.use_md5 = True
+    if not args.use_sha1:
+        args.use_md5 = True
     # print(args)
     return args
 
+
 def main():
-    args = argParse()
-    checksum_calculator = checksumCalculator(vars(args))
-    EXIT_STATUS = checksum_calculator.calculate()
-    return EXIT_STATUS
+    args = arg_parse()
+    checksum_calculator = ChecksumCalculator(vars(args))
+    exit_status = checksum_calculator.calculate()
+    return exit_status
+
 
 if __name__ == '__main__':
     sys.exit(main())
-
