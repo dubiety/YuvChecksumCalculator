@@ -1,0 +1,13 @@
+*.py[coy]
+__pycache__
+
+# Development files
+.project
+.pydevproject
+
+# Test files
+*.y4m
+*.yuv
+
+# Temp files
+*~
