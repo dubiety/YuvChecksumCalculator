@@ -112,8 +112,7 @@ def arg_parse():
     parser.add_argument('-c', '--combine', dest='combine_calculate', action='store_true',
                         help='Only calculate one MD5 for YUV 3 channel combined.')
     # parser.add_argument('-p', '--rpadding', type=int, default=0, nargs=1, dest='rpadding',
-    # metavar='<padding>',
-    #                    help='YUV right padding (in pixels). e.g. To skip 16 pixel data, enter \"-p 16\"')
+    # metavar='<padding>', help='YUV right padding (in pixels). e.g. To skip 16 pixel data, enter \"-p 16\"')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--md5', dest='use_md5', action='store_true',
                        help='Calculate MD5 checksum (default is true).')
