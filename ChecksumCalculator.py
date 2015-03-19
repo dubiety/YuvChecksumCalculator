@@ -6,8 +6,7 @@
 #  that can be found in the LICENSE file in the root of the source tree.
 #
 
-import os
-import sys
+from sys import exit, argv
 import argparse
 import hashlib
 import logging
@@ -36,27 +35,23 @@ class ChecksumCalculator(object):
         self.height = args["resolution"][1]
         self.luma_size = self.width * self.height
         self.chroma_size = 0 if self.is_mono else self.luma_size >> 2
-        # Process argument
         if self.use_md5:
             self.checksum_func = hashlib.md5
         else:
             self.checksum_func = hashlib.sha1
-        if not self.frames_to_calculate:
-            self.input_file.seek(0, os.SEEK_END)
-            file_size = self.input_file.tell()
-            self.frames_to_calculate = file_size // (self.luma_size + self.chroma_size * 2) - self.start
-            self.input_file.seek(0, os.SEEK_SET)
 
     def calculate(self):
         frame_left = self.frames_to_calculate
+        frame_count = 1
         skip_byte = (self.luma_size + self.chroma_size) * self.start
+
         # Start calculation frame by frame and save to output file
         print("Calculating....")
         self.input_file.seek(skip_byte)
         chunk = self.input_file.read(self.luma_size)
-        while chunk and frame_left:
-            # log setting
-            frame_num_str = "[" + str(self.frames_to_calculate - frame_left) + "] "
+        while chunk and frame_count <= self.frames_to_calculate:
+            # Log frame number
+            frame_num_str = "[" + str(frame_count) + "] "
             # Luma part
             checksum = self.checksum_func()
             checksum.update(chunk)
@@ -82,6 +77,7 @@ class ChecksumCalculator(object):
 
             chunk = self.input_file.read(self.luma_size)
             frame_left -= 1
+            frame_count += 1
 
         print("Done! {frames} calculated at file {file_name}".format(frames=self.frames_to_calculate,
                                                                      file_name=self.output_file.name))
@@ -94,7 +90,7 @@ def get_version():
 
 
 def arg_parse():
-    parser = argparse.ArgumentParser(description='Calculate IYUV MD5/CRC/SHA', prog='YUV Checksum Calculator')
+    parser = argparse.ArgumentParser(description='Calculate IYUV MD5 or SHA', prog='YUV Checksum Calculator')
     parser.add_argument('-v', '--version', action='version', version=get_version())
     parser.add_argument('-i', '--input', type=argparse.FileType('rb'), dest='input_file', required=True,
                         metavar='<file name>',
@@ -124,7 +120,7 @@ def arg_parse():
                        help='Calculate SHA1 instead of MD5.')
 
     # parser.print_help()
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(argv[1:])
     if not args.use_sha1:
         args.use_md5 = True
     # print(args)
@@ -146,4 +142,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    exit(main())
