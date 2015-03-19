@@ -10,6 +10,8 @@ import os
 import sys
 import argparse
 import hashlib
+import logging
+log = logging.getLogger(__name__)
 
 
 class ChecksumCalculator(object):
@@ -53,12 +55,14 @@ class ChecksumCalculator(object):
         self.input_file.seek(skip_byte)
         chunk = self.input_file.read(self.luma_size)
         while chunk and frame_left:
+            # log setting
+            frame_num_str = "[" + str(self.frames_to_calculate - frame_left) + "] "
             # Luma part
             checksum = self.checksum_func()
             checksum.update(chunk)
             if not self.combine_calculate:
                 self.output_file.write(checksum.hexdigest() + '\n')
-                # print("Y " + checksum.hexdigest())
+                log.debug(frame_num_str + "Y " + checksum.hexdigest())
 
             # Chroma part
             if not self.is_mono:
@@ -70,11 +74,11 @@ class ChecksumCalculator(object):
                     checksum.update(chunk)
                     if not self.combine_calculate:
                         self.output_file.write(checksum.hexdigest() + '\n')
-                        # print(("U " if channel == 0 else "V ") + checksum.hexdigest())
+                        log.debug(frame_num_str + ("U " if channel == 0 else "V ") + checksum.hexdigest())
                     channel += 1
                 if self.combine_calculate:
                     self.output_file.write(checksum.hexdigest() + '\n')
-                    # print("Frame" + str(self.frames_to_calculate - frame_left) + " " + checksum.hexdigest())
+                    log.debug(frame_num_str + checksum.hexdigest())
 
             chunk = self.input_file.read(self.luma_size)
             frame_left -= 1
@@ -128,6 +132,13 @@ def arg_parse():
 
 
 def main():
+    # Setup logging information
+    formatter = logging.Formatter('%(message)s')
+    console = logging.StreamHandler()
+    console.setFormatter(formatter)
+    log.addHandler(console)
+    log.setLevel(logging.WARNING) # Change debug level here
+
     args = arg_parse()
     checksum_calculator = ChecksumCalculator(vars(args))
     exit_status = checksum_calculator.calculate()
