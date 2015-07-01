@@ -88,8 +88,7 @@ def get_version():
     """Return this module version"""
     return '%(prog)s ' + 'v0.1 alpha'
 
-
-def arg_parse():
+def arg_parser():
     parser = argparse.ArgumentParser(description='Calculate IYUV MD5 or SHA', prog='YUV Checksum Calculator')
     parser.add_argument('-v', '--version', action='version', version=get_version())
     parser.add_argument('-i', '--input', type=argparse.FileType('rb'), dest='input_file', required=True,
@@ -118,14 +117,16 @@ def arg_parse():
                        help='Calculate MD5 checksum (default is true).')
     group.add_argument('--sha1', dest='use_sha1', action='store_true',
                        help='Calculate SHA1 instead of MD5.')
-
     # parser.print_help()
+
+    return parser
+
+def arg_parse(parser):
     args = parser.parse_args(argv[1:])
     if not args.use_sha1:
         args.use_md5 = True
     # print(args)
     return args
-
 
 def main():
     # Setup logging information
@@ -133,13 +134,12 @@ def main():
     console = logging.StreamHandler()
     console.setFormatter(formatter)
     log.addHandler(console)
-    log.setLevel(logging.WARNING) # Change debug level here
+    log.setLevel(logging.WARNING)  # Change debug level here
 
-    args = arg_parse()
+    args = arg_parse(arg_parser())
     checksum_calculator = ChecksumCalculator(vars(args))
     exit_status = checksum_calculator.calculate()
     return exit_status
-
 
 if __name__ == '__main__':
     exit(main())
