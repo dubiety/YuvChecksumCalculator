@@ -23,16 +23,15 @@ class ChecksumCalculator(object):
     """
 
     def __init__(self, args):
-        self.input_file = args["input_file"]
-        self.output_file = args["output_file"]
-        self.start = args["start"]
-        self.frames_to_calculate = args["frames_to_calculate"]
-        self.is_mono = args["is_mono"]
-        self.combine_calculate = args["combine_calculate"]
-        self.use_md5 = args["use_md5"]
-        self.use_sha1 = args["use_sha1"]
-        self.width = args["resolution"][0]
-        self.height = args["resolution"][1]
+        self.input_file = args.input_file
+        self.output_file = args.output_file
+        self.start = args.start
+        self.frames_to_calculate = args.frames_to_calculate
+        self.is_mono = args.is_mono
+        self.combine_calculate = args.combine_calculate
+        self.use_md5 = args.use_md5
+        self.use_sha1 = args.use_sha1
+        self.width, self.height = args.resolution
         self.luma_size = self.width * self.height
         self.chroma_size = 0 if self.is_mono else self.luma_size >> 2
         if self.use_md5:
@@ -41,7 +40,7 @@ class ChecksumCalculator(object):
             self.checksum_func = hashlib.sha1
 
     def calculate(self):
-        frame_left = self.frames_to_calculate
+        # frame_left = self.frames_to_calculate
         frame_count = 1
         skip_byte = (self.luma_size + self.chroma_size) * self.start
 
@@ -76,7 +75,7 @@ class ChecksumCalculator(object):
                     log.debug(frame_num_str + checksum.hexdigest())
 
             chunk = self.input_file.read(self.luma_size)
-            frame_left -= 1
+            # frame_left -= 1
             frame_count += 1
 
         print("Done! {frames} calculated at file {file_name}".format(frames=self.frames_to_calculate,
@@ -121,8 +120,8 @@ def arg_parser():
 
     return parser
 
-def arg_parse(parser):
-    args = parser.parse_args(argv[1:])
+def arg_parse(parser, _argv):
+    args = parser.parse_args(_argv)
     if not args.use_sha1:
         args.use_md5 = True
     # print(args)
@@ -136,8 +135,8 @@ def main():
     log.addHandler(console)
     log.setLevel(logging.WARNING)  # Change debug level here
 
-    args = arg_parse(arg_parser())
-    checksum_calculator = ChecksumCalculator(vars(args))
+    args = arg_parse(arg_parser(), argv[1:])
+    checksum_calculator = ChecksumCalculator(args)
     exit_status = checksum_calculator.calculate()
     return exit_status
 
