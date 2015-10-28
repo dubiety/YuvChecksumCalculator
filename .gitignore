@@ -4,6 +4,7 @@ __pycache__
 # Development files
 .project
 .pydevproject
+.ideas/*
 
 # Test files
 *.y4m

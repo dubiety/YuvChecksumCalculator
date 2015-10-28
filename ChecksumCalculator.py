@@ -82,6 +82,13 @@ class ChecksumCalculator(object):
                                                                      file_name=self.output_file.name))
         return 0
 
+def setup_logger():
+    # Setup logging information
+    formatter = logging.Formatter('%(message)s')
+    console = logging.StreamHandler()
+    console.setFormatter(formatter)
+    log.addHandler(console)
+    log.setLevel(logging.WARNING)  # Change debug level here
 
 def get_version():
     """Return this module version"""
@@ -116,26 +123,22 @@ def arg_parser():
                        help='Calculate MD5 checksum (default is true).')
     group.add_argument('--sha1', dest='use_sha1', action='store_true',
                        help='Calculate SHA1 instead of MD5.')
-    # parser.print_help()
 
     return parser
 
-def arg_parse(parser, _argv):
-    args = parser.parse_args(_argv)
+def arg_parse():
+    parser = arg_parser()
+
+    args = parser.parse_args()
     if not args.use_sha1:
         args.use_md5 = True
-    # print(args)
+
     return args
 
 def main():
-    # Setup logging information
-    formatter = logging.Formatter('%(message)s')
-    console = logging.StreamHandler()
-    console.setFormatter(formatter)
-    log.addHandler(console)
-    log.setLevel(logging.WARNING)  # Change debug level here
+    setup_logger()
+    args = arg_parse()
 
-    args = arg_parse(arg_parser(), argv[1:])
     checksum_calculator = ChecksumCalculator(args)
     exit_status = checksum_calculator.calculate()
     return exit_status
